@@ -1,0 +1,29 @@
+name: Check Ratchakitcha Daily
+
+on:
+  schedule:
+    # รันทุกวันเวลา 07:00 น. (เวลาไทย = UTC+7, ดังนั้น 00:00 UTC = 07:00 ICT)
+    - cron: '0 0 * * *'
+  
+  # เปิดให้รันด้วยตัวเองได้ (สำหรับทดสอบ)
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Run check script
+        env:
+          RATCHAKITCHA_TOKEN: ${{ secrets.RATCHAKITCHA_TOKEN }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: node check.js
