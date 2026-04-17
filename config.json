@@ -7,7 +7,7 @@
   ],
   "daysToCheck": 1,
   "emailTo": "",
-  "ratchakitchaToken": "",
-  "resendApiKey": "",
-  "description": "กรอกข้อมูลทั้งหมดผ่านหน้าเว็บ Config Panel"
+  "ratchakitchaToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbG9yZWNvcmQ4MTk5M0BnbWFpbC5jb20iLCJndWlkIjoiNDJkZWRkODRmOWNiZTkzNjc3NTU5NGQ3ZmM3ZmYwMGIiLCJleHAiOjE3NzY0MTA0MzgsImlzcyI6Imh0dHA6Ly8xMC45OC4xMy41MjoxMTUwIiwiYXVkIjoiaHR0cDovLzEwLjk4LjEzLjUyOjExNTAifQ.s0HbFvb-V2tUWYK8pHP-WFmPp7gxNIJeMC2il5Ua8s4",
+  "resendApiKey": "re_ZU3MRJas_J9exwcyvWyXeVbbVZUYuw5Nd",
+  "description": "แก้ไข tokens ได้ที่นี่ / กรอก email ผ่านหน้าเว็บ Config Panel"
 }

@@ -28,6 +28,7 @@ async function fetchRatchakitcha(keyword, daysBack = 1) {
   
   console.log(`🔍 Searching for: ${keyword}`);
   console.log(`📅 Date range: ${dateBegin} to ${dateEnd}`);
+  console.log(`🌐 URL: ${url}`);
   
   try {
     const response = await fetch(url, {
