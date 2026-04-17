@@ -4,7 +4,7 @@
     "คลัง",
     "ปิโตรเลียม"
   ],
-  "daysToCheck": 30,
+  "daysToCheck": 365,
   "emailTo": "solorecord81993@gmail.com",
   "ratchakitchaToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbG9yZWNvcmQ4MTk5M0BnbWFpbC5jb20iLCJndWlkIjoiNDJkZWRkODRmOWNiZTkzNjc3NTU5NGQ3ZmM3ZmYwMGIiLCJleHAiOjE3NzY0MTA0MzgsImlzcyI6Imh0dHA6Ly8xMC45OC4xMy41MjoxMTUwIiwiYXVkIjoiaHR0cDovLzEwLjk4LjEzLjUyOjExNTAifQ.s0HbFvb-V2tUWYK8pHP-WFmPp7gxNIJeMC2il5Ua8s4",
   "resendApiKey": "re_ZU3MRJas_J9exwcyvWyXeVbbVZUYuw5Nd",
