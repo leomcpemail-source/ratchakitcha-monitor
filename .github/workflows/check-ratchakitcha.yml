@@ -2,7 +2,7 @@ name: Check Ratchakitcha Daily
 
 on:
   schedule:
-    - cron: '29 6 * * *'
+    - cron: '29 1 * * *'
   
   workflow_dispatch:
 
