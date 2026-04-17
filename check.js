@@ -2,14 +2,16 @@ const fs = require('fs');
 
 // อ่านค่า config
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
-const RATCHAKITCHA_TOKEN = process.env.RATCHAKITCHA_TOKEN;
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const EMAIL_TO = process.env.EMAIL_TO;
 
-// ตรวจสอบว่ามี environment variables ครบไหม
+// ใช้ค่าจาก config.json แทน environment variables
+const RATCHAKITCHA_TOKEN = config.ratchakitchaToken || process.env.RATCHAKITCHA_TOKEN;
+const RESEND_API_KEY = config.resendApiKey || process.env.RESEND_API_KEY;
+const EMAIL_TO = config.emailTo || process.env.EMAIL_TO;
+
+// ตรวจสอบว่ามี config ครบไหม
 if (!RATCHAKITCHA_TOKEN || !RESEND_API_KEY || !EMAIL_TO) {
-  console.error('❌ Missing required environment variables');
-  console.error('Required: RATCHAKITCHA_TOKEN, RESEND_API_KEY, EMAIL_TO');
+  console.error('❌ Missing required configuration');
+  console.error('Required: ratchakitchaToken, resendApiKey, emailTo in config.json');
   process.exit(1);
 }
 
