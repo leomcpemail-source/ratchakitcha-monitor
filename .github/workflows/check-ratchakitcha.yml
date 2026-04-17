@@ -2,7 +2,7 @@ name: Check Ratchakitcha Daily
 
 on:
   schedule:
-    - cron: '0 6 * * *'
+    - cron: '29 6 * * *'
   
   workflow_dispatch:
 
@@ -20,8 +20,4 @@ jobs:
           node-version: '20'
       
       - name: Run check script
-        env:
-          RATCHAKITCHA_TOKEN: ${{ secrets.RATCHAKITCHA_TOKEN }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          EMAIL_TO: ${{ secrets.EMAIL_TO }}
         run: node check.js
