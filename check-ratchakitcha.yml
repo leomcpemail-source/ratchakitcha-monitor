@@ -1,0 +1,24 @@
+name: Check Ratchakitcha Daily
+
+on:
+  schedule:
+    # 08:00 น. เวลาไทย (ICT) = 01:00 UTC
+    - cron: '0 1 * * *'  # 08:00 ICT = 01:00 UTC
+  
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Run check script
+        run: node check.js
