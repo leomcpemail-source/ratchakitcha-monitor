@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ตั้งค่าระบบแจ้งเตือนราชกิจจานุเบกษา</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    .header { text-align: center; color: white; margin-bottom: 30px; }
+    .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+    .header p { font-size: 1.1em; opacity: 0.9; }
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .card h2 {
+      color: #667eea;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1em;
+      font-family: inherit;
+      transition: border-color 0.3s;
+    }
+    .form-group input:focus { outline: none; border-color: #667eea; }
+    .form-group small { display: block; margin-top: 5px; color: #666; font-size: 0.9em; }
+    .keywords-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+      min-height: 40px;
+    }
+    .keyword-tag {
+      background: #667eea;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95em;
+    }
+    .keyword-tag button {
+      background: rgba(255,255,255,0.3);
+      border: none;
+      color: white;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .keyword-tag button:hover { background: rgba(255,255,255,0.5); }
+    .keyword-input-group { display: flex; gap: 10px; }
+    .keyword-input-group input { flex: 1; }
+    .time-slot-item {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 15px;
+      background: #f7fafc;
+      border-radius: 8px;
+      border: 2px solid #e0e0e0;
+    }
+    .time-slot-item input {
+      width: 70px;
+      padding: 8px;
+      border: 2px solid #e0e0e0;
+      border-radius: 4px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .time-slot-item .utc-preview {
+      background: #e6fffa;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      color: #2c7a7b;
+      font-family: 'Courier New', monospace;
+    }
+    .time-slot-item button {
+      background: #fc8181;
+      color: white;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2em;
+      transition: background 0.2s;
+    }
+    .time-slot-item button:hover { background: #f56565; }
+    .add-time-btn {
+      background: #48bb78;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.2s;
+    }
+    .add-time-btn:hover { background: #38a169; }
+    .add-time-btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+    .btn-primary { background: #667eea; color: white; }
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    .btn-success { background: #48bb78; color: white; }
+    .btn-success:hover {
+      background: #38a169;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+    }
+    .btn-danger { background: #fc8181; color: white; }
+    .btn-danger:hover { background: #f56565; }
+    .btn-block { width: 100%; }
+    .alert {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .alert.show { display: block; animation: slideDown 0.3s ease; }
+    .alert-success { background: #c6f6d5; color: #22543d; border: 2px solid #48bb78; }
+    .alert-error { background: #fed7d7; color: #742a2a; border: 2px solid #fc8181; }
+    .alert-info { background: #bee3f8; color: #2c5282; border: 2px solid #4299e1; }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .loading { text-align: center; padding: 20px; color: #666; }
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .info-box {
+      background: #f7fafc;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid #4299e1;
+      margin-bottom: 20px;
+    }
+    .info-box strong { color: #2c5282; }
+    .time-conversion-preview {
+      background: #fef5e7;
+      border: 2px solid #f39c12;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+    .time-conversion-preview h3 {
+      color: #d68910;
+      margin-bottom: 10px;
+      font-size: 1.1em;
+    }
+    .time-conversion-preview pre {
+      background: #2d3748;
+      color: #68d391;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 0.85em;
+    }
+    .token-status {
+      background: #e6fffa;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .token-status .status { color: #2c7a7b; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>⚙️ ตั้งค่าระบบแจ้งเตือนราชกิจจานุเบกษา</h1>
+      <p>กำหนด Keywords และเวลาที่ต้องการตรวจสอบ</p>
+    </div>
+
+    <div id="loadingCard" class="card">
+      <div class="loading">
+        <div class="spinner"></div>
+        <h3>กำลังเชื่อมต่อ GitHub...</h3>
+        <p style="color: #999; margin-top: 10px;">กรุณารอสักครู่</p>
+      </div>
+    </div>
+
+    <div id="alertBox" class="alert"></div>
+
+    <div id="configCard" style="display: none;">
+      
+      <!-- Token Management -->
+      <div class="card">
+        <h2>🔑 การจัดการ Token</h2>
+        <div class="token-status">
+          <div class="status">✅ เชื่อมต่อกับ GitHub สำเร็จ</div>
+          <button class="btn btn-danger" onclick="clearToken()" style="padding: 8px 16px; font-size: 0.9em;">
+            🗑️ ลบ Token
+          </button>
+        </div>
+        <p style="color: #666; font-size: 0.9em;">
+          Token ถูกเก็บไว้ใน browser ของคุณ (localStorage) เพื่อใช้ครั้งต่อไป
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>🔍 คำค้นหา (Keywords)</h2>
+        <div class="info-box">
+          <strong>คำแนะนำ:</strong> ระบุคำที่ต้องการค้นหาในราชกิจจานุเบกษา เช่น "น้ำมัน", "คลัง", "ปิโตรเลียม"
+        </div>
+        
+        <div class="keywords-list" id="keywordsList"></div>
+        
+        <div class="keyword-input-group">
+          <input type="text" id="newKeyword" placeholder="พิมพ์ keyword ใหม่..." />
+          <button class="btn btn-primary" onclick="addKeyword()">➕ เพิ่ม</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>⏰ ตารางเวลาตรวจสอบ</h2>
+        <div class="info-box">
+          <strong>สำคัญ:</strong> ใส่เวลาเป็น<strong>เวลาไทย (ICT)</strong> ระบบจะแปลงเป็น UTC อัตโนมัติสำหรับ GitHub Actions
+        </div>
+        
+        <div id="timeSlotsContainer"></div>
+        
+        <button id="addTimeBtn" class="add-time-btn" onclick="addTimeSlot()">
+          ➕ เพิ่มเวลาใหม่
+        </button>
+
+        <div class="time-conversion-preview" id="timePreview">
+          <h3>🔄 แสดงการแปลงเวลา ICT → UTC</h3>
+          <pre id="cronPreview"></pre>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📧 การตั้งค่าอื่นๆ</h2>
+        
+        <div class="form-group">
+          <label>📅 ย้อนหลังกี่วัน</label>
+          <input type="number" id="daysToCheck" min="1" max="1095" value="1" />
+          <small>ระบุจำนวนวันที่ต้องการค้นหาย้อนหลัง (แนะนำ 1-7 วัน)</small>
+        </div>
+
+        <div class="form-group">
+          <label>📬 อีเมล์ผู้รับ</label>
+          <input type="email" id="emailTo" placeholder="your-email@example.com" />
+          <small>อีเมล์ที่จะรับการแจ้งเตือน</small>
+        </div>
+      </div>
+
+      <div class="card">
+        <button class="btn btn-success btn-block" onclick="saveConfig()">
+          💾 บันทึกการตั้งค่า
+        </button>
+        <p style="text-align: center; margin-top: 15px; color: #666;">
+          <small>⚠️ การเปลี่ยนแปลงจะถูกบันทึกไปยัง GitHub Repository</small>
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let config = {
+      keywords: [],
+      daysToCheck: 1,
+      emailTo: '',
+      ratchakitchaToken: '',
+      resendApiKey: '',
+      description: ''
+    };
+
+    let timeSlots = [{hour: 8, minute: 0}];
+
+    const githubConfig = {
+      owner: 'leomcpemail-source',
+      repo: 'ratchakitcha-monitor',
+      token: null
+    };
+
+    function showAlert(message, type = 'info') {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.className = `alert alert-${type} show`;
+      alertBox.textContent = message;
+      setTimeout(() => { alertBox.classList.remove('show'); }, 5000);
+    }
+
+    function promptForToken() {
+      const token = prompt(
+        '🔑 กรุณาใส่ GitHub Personal Access Token:\n\n' +
+        '📍 สร้างได้ที่: https://github.com/settings/tokens\n' +
+        '✅ ต้องการ permission: repo\n\n' +
+        '💾 Token จะถูกเก็บไว้ใน browser (localStorage)'
+      );
+      
+      if (token && token.trim()) {
+        githubConfig.token = token.trim();
+        try {
+          localStorage.setItem('github_token', token.trim());
+          showAlert('✅ บันทึก Token สำเร็จ', 'success');
+          return true;
+        } catch (e) {
+          console.warn('ไม่สามารถบันทึก token:', e);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function loadTokenFromStorage() {
+      try {
+        const savedToken = localStorage.getItem('github_token');
+        if (savedToken) {
+          githubConfig.token = savedToken;
+          return true;
+        }
+      } catch (e) {
+        console.warn('ไม่สามารถอ่าน token:', e);
+      }
+      return false;
+    }
+
+    function clearToken() {
+      if (!confirm('⚠️ คุณแน่ใจหรือไม่ว่าต้องการลบ Token?\n\nคุณจะต้องใส่ Token ใหม่ในครั้งถัดไป')) {
+        return;
+      }
+      
+      githubConfig.token = null;
+      try {
+        localStorage.removeItem('github_token');
+      } catch (e) {
+        console.warn('ไม่สามารถลบ token:', e);
+      }
+      showAlert('🗑️ ลบ Token แล้ว', 'success');
+      setTimeout(() => location.reload(), 1500);
+    }
+
+    function showTokenPrompt() {
+      if (promptForToken()) {
+        showAlert('กำลังโหลด...', 'info');
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        showAlert('❌ กรุณาใส่ Token', 'error');
+      }
+    }
+
+    async function init() {
+      if (!githubConfig.token) {
+        loadTokenFromStorage();
+      }
+
+      if (!githubConfig.token) {
+        document.getElementById('loadingCard').innerHTML = `
+          <div class="loading">
+            <h3 style="color: #fc8181; margin-bottom: 15px;">🔑 ต้องการ GitHub Token</h3>
+            <p style="margin: 15px 0; line-height: 1.6;">
+              ต้องใช้ GitHub Personal Access Token<br>
+              เพื่อเชื่อมต่อกับ Repository
+            </p>
+            <button class="btn btn-primary" onclick="showTokenPrompt()" style="margin: 20px auto; display: block;">
+              🔑 ใส่ Token
+            </button>
+            <div style="background: #f7fafc; padding: 20px; border-radius: 8px; margin-top: 20px; text-align: left;">
+              <strong style="color: #2c5282;">📝 วิธีสร้าง Token:</strong>
+              <ol style="margin: 15px 0 0 20px; line-height: 1.8; color: #666;">
+                <li>ไปที่ <a href="https://github.com/settings/tokens" target="_blank" style="color: #667eea; font-weight: 600;">GitHub Settings → Tokens</a></li>
+                <li>คลิก <strong>Generate new token (classic)</strong></li>
+                <li>ตั้งชื่อ: เช่น "Ratchakitcha Monitor"</li>
+                <li>เลือก scope: <code style="background: #e0e0e0; padding: 2px 6px; border-radius: 3px;">repo</code></li>
+                <li>คลิก <strong>Generate token</strong></li>
+                <li>Copy token มาใส่ที่นี่</li>
+              </ol>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      try {
+        await loadConfig();
+      } catch (error) {
+        console.error('Connection error:', error);
+        
+        if (error.message.includes('401') || error.message.includes('Bad credentials')) {
+          document.getElementById('loadingCard').innerHTML = `
+            <div class="loading">
+              <h3 style="color: #fc8181; margin-bottom: 10px;">❌ Token ไม่ถูกต้อง</h3>
+              <p style="background: #fff; padding: 10px; border-radius: 5px; color: #333; margin: 10px 0;">
+                Token ที่บันทึกไว้อาจหมดอายุหรือไม่ถูกต้อง
+              </p>
+              <button class="btn btn-primary" onclick="clearToken(); showTokenPrompt();" style="margin-top: 10px;">
+                🔄 ใส่ Token ใหม่
+              </button>
+            </div>
+          `;
+        } else {
+          document.getElementById('loadingCard').innerHTML = `
+            <div class="loading">
+              <h3 style="color: #fc8181; margin-bottom: 10px;">❌ เชื่อมต่อไม่สำเร็จ</h3>
+              <p style="background: #fff; padding: 10px; border-radius: 5px; color: #333; margin: 10px 0;">${error.message}</p>
+              <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 10px;">🔄 ลองใหม่</button>
+              <button class="btn btn-danger" onclick="clearToken(); showTokenPrompt();" style="margin-top: 10px; margin-left: 10px; padding: 8px 16px; font-size: 0.9em;">
+                🔑 เปลี่ยน Token
+              </button>
+            </div>
+          `;
+        }
+      }
+    }
+
+    async function loadConfig() {
+      try {
+        showAlert('กำลังโหลดข้อมูล...', 'info');
+
+        const configResponse = await githubAPI('GET', `/repos/${githubConfig.owner}/${githubConfig.repo}/contents/config.json`);
+        const base64Content = configResponse.content;
+        const jsonString = decodeURIComponent(escape(atob(base64Content)));
+        const configContent = JSON.parse(jsonString);
+        config = configContent;
+
+        renderKeywords();
+        document.getElementById('daysToCheck').value = config.daysToCheck || 1;
+        document.getElementById('emailTo').value = config.emailTo || '';
+
+        const workflowResponse = await githubAPI('GET', `/repos/${githubConfig.owner}/${githubConfig.repo}/contents/.github/workflows/check-ratchakitcha.yml`);
+        const workflowContent = decodeURIComponent(escape(atob(workflowResponse.content)));
+        parseTimeSlotsFromWorkflow(workflowContent);
+
+        document.getElementById('loadingCard').style.display = 'none';
+        document.getElementById('configCard').style.display = 'block';
+
+        showAlert('✅ โหลดข้อมูลสำเร็จ!', 'success');
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    function parseTimeSlotsFromWorkflow(workflowContent) {
+      const cronRegex = /cron:\s*'(\d+)\s+(\d+)\s+\*\s+\*\s+\*'/g;
+      const matches = [...workflowContent.matchAll(cronRegex)];
+      
+      timeSlots = matches.map(match => {
+        const minute = parseInt(match[1]);
+        const utcHour = parseInt(match[2]);
+        let ictHour = (utcHour + 7) % 24;
+        return {hour: ictHour, minute: minute};
+      });
+
+      if (timeSlots.length === 0) {
+        timeSlots = [{hour: 8, minute: 0}];
+      }
+
+      renderTimeSlots();
+      updateCronPreview();
+    }
+
+    function renderKeywords() {
+      const container = document.getElementById('keywordsList');
+      container.innerHTML = '';
+
+      if (config.keywords.length === 0) {
+        container.innerHTML = '<div style="color: #999; font-style: italic;">ยังไม่มี keywords</div>';
+        return;
+      }
+
+      config.keywords.forEach((keyword, index) => {
+        const tag = document.createElement('div');
+        tag.className = 'keyword-tag';
+        tag.innerHTML = `
+          <span>${keyword}</span>
+          <button onclick="removeKeyword(${index})" title="ลบ">×</button>
+        `;
+        container.appendChild(tag);
+      });
+    }
+
+    function addKeyword() {
+      const input = document.getElementById('newKeyword');
+      const keyword = input.value.trim();
+
+      if (!keyword) {
+        showAlert('กรุณาพิมพ์ keyword', 'error');
+        return;
+      }
+
+      if (config.keywords.includes(keyword)) {
+        showAlert('Keyword นี้มีอยู่แล้ว', 'error');
+        return;
+      }
+
+      config.keywords.push(keyword);
+      renderKeywords();
+      input.value = '';
+      showAlert(`เพิ่ม "${keyword}" แล้ว`, 'success');
+    }
+
+    function removeKeyword(index) {
+      const keyword = config.keywords[index];
+      config.keywords.splice(index, 1);
+      renderKeywords();
+      showAlert(`ลบ "${keyword}" แล้ว`, 'success');
+    }
+
+    function renderTimeSlots() {
+      const container = document.getElementById('timeSlotsContainer');
+      container.innerHTML = '';
+
+      timeSlots.forEach((slot, index) => {
+        const utcHour = (slot.hour - 7 + 24) % 24;
+        const utcStr = `${String(utcHour).padStart(2, '0')}:${String(slot.minute).padStart(2, '0')} UTC`;
+        
+        const slotDiv = document.createElement('div');
+        slotDiv.className = 'time-slot-item';
+        slotDiv.innerHTML = `
+          <span style="min-width: 80px; font-weight: 600;">เวลาไทย:</span>
+          <input type="number" min="0" max="23" value="${slot.hour}" 
+                 onchange="updateTimeSlotHour(${index}, this.value)"
+                 placeholder="ชม.">
+          <span>:</span>
+          <input type="number" min="0" max="59" value="${slot.minute}" 
+                 onchange="updateTimeSlotMinute(${index}, this.value)"
+                 placeholder="นาที">
+          <span>น.</span>
+          <span>→</span>
+          <div class="utc-preview" title="เวลาที่จะใช้ใน GitHub Actions">${utcStr}</div>
+          <button onclick="removeTimeSlot(${index})" title="ลบเวลานี้">×</button>
+        `;
+        container.appendChild(slotDiv);
+      });
+
+      updateAddTimeButton();
+      updateCronPreview();
+    }
+
+    function updateCronPreview() {
+      let preview = '';
+      timeSlots.forEach((slot, index) => {
+        const utcHour = (slot.hour - 7 + 24) % 24;
+        const ictStr = `${String(slot.hour).padStart(2, '0')}:${String(slot.minute).padStart(2, '0')}`;
+        const utcStr = `${String(utcHour).padStart(2, '0')}:${String(slot.minute).padStart(2, '0')}`;
+        const cron = `${slot.minute} ${utcHour} * * *`;
+        
+        preview += `${index + 1}. เวลาไทย ${ictStr} → UTC ${utcStr}\n`;
+        preview += `   cron: '${cron}'\n\n`;
+      });
+      
+      document.getElementById('cronPreview').textContent = preview;
+    }
+
+    function addTimeSlot() {
+      if (timeSlots.length >= 10) {
+        showAlert('เพิ่มเวลาได้สูงสุด 10 เวลา', 'error');
+        return;
+      }
+      timeSlots.push({hour: 8, minute: 0});
+      renderTimeSlots();
+      showAlert('เพิ่มเวลาใหม่แล้ว', 'success');
+    }
+
+    function removeTimeSlot(index) {
+      if (timeSlots.length <= 1) {
+        showAlert('ต้องมีอย่างน้อย 1 เวลา', 'error');
+        return;
+      }
+      timeSlots.splice(index, 1);
+      renderTimeSlots();
+      showAlert('ลบเวลาแล้ว', 'success');
+    }
+
+    function updateTimeSlotHour(index, value) {
+      const hour = parseInt(value);
+      if (hour < 0 || hour > 23 || isNaN(hour)) {
+        showAlert('ชั่วโมงต้องอยู่ระหว่าง 0-23', 'error');
+        renderTimeSlots();
+        return;
+      }
+      timeSlots[index].hour = hour;
+      renderTimeSlots();
+      showAlert(`อัพเดทเวลา`, 'success');
+    }
+
+    function updateTimeSlotMinute(index, value) {
+      const minute = parseInt(value);
+      if (minute < 0 || minute > 59 || isNaN(minute)) {
+        showAlert('นาทีต้องอยู่ระหว่าง 0-59', 'error');
+        renderTimeSlots();
+        return;
+      }
+      timeSlots[index].minute = minute;
+      renderTimeSlots();
+      showAlert(`อัพเดทเวลา`, 'success');
+    }
+
+    function updateAddTimeButton() {
+      const btn = document.getElementById('addTimeBtn');
+      btn.disabled = timeSlots.length >= 10;
+    }
+
+    async function saveConfig() {
+      try {
+        if (config.keywords.length === 0) {
+          showAlert('กรุณาเพิ่ม keyword อย่างน้อย 1 ตัว', 'error');
+          return;
+        }
+
+        if (timeSlots.length === 0) {
+          showAlert('กรุณาเพิ่มเวลาอย่างน้อย 1 เวลา', 'error');
+          return;
+        }
+
+        const daysToCheck = parseInt(document.getElementById('daysToCheck').value);
+        if (daysToCheck < 1 || daysToCheck > 1095) {
+          showAlert('จำนวนวันต้องอยู่ระหว่าง 1-1095', 'error');
+          return;
+        }
+
+        const emailTo = document.getElementById('emailTo').value.trim();
+        if (!emailTo || !emailTo.includes('@')) {
+          showAlert('กรุณากรอกอีเมล์ให้ถูกต้อง', 'error');
+          return;
+        }
+
+        showAlert('กำลังบันทึก...', 'info');
+
+        const updatedConfig = {
+          keywords: config.keywords,
+          daysToCheck: daysToCheck,
+          emailTo: emailTo,
+          ratchakitchaToken: config.ratchakitchaToken,
+          resendApiKey: config.resendApiKey,
+          description: config.description
+        };
+
+        await updateFile('config.json', JSON.stringify(updatedConfig, null, 2), 'อัพเดทการตั้งค่า');
+        await updateWorkflowSchedule(timeSlots);
+
+        showAlert('✅ บันทึกการตั้งค่าสำเร็จ!', 'success');
+      } catch (error) {
+        showAlert(`❌ บันทึกไม่สำเร็จ: ${error.message}`, 'error');
+      }
+    }
+
+    async function updateWorkflowSchedule(slots) {
+      let workflowContent = `name: Check Ratchakitcha Daily
+
+on:
+  schedule:
+`;
+      
+      slots.forEach(slot => {
+        let utcHour = (slot.hour - 7 + 24) % 24;
+        const ictStr = `${String(slot.hour).padStart(2, '0')}:${String(slot.minute).padStart(2, '0')}`;
+        const utcStr = `${String(utcHour).padStart(2, '0')}:${String(slot.minute).padStart(2, '0')}`;
+        workflowContent += `    - cron: '${slot.minute} ${utcHour} * * *'  # ${ictStr} ICT = ${utcStr} UTC\n`;
+      });
+
+      workflowContent += `  
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Run check script
+        run: node check.js
+`;
+
+      await updateFile('.github/workflows/check-ratchakitcha.yml', workflowContent, 'อัพเดทตารางเวลา');
+    }
+
+    async function updateFile(path, content, message) {
+      const currentFile = await githubAPI('GET', `/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${path}`);
+      const utf8Content = unescape(encodeURIComponent(content));
+      const base64Content = btoa(utf8Content);
+      
+      await githubAPI('PUT', `/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${path}`, {
+        message: message,
+        content: base64Content,
+        sha: currentFile.sha
+      });
+    }
+
+    async function githubAPI(method, endpoint, body = null) {
+      const options = {
+        method: method,
+        headers: {
+          'Authorization': `token ${githubConfig.token}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        }
+      };
+
+      if (body) {
+        options.body = JSON.stringify(body);
+      }
+
+      const response = await fetch(`https://api.github.com${endpoint}`, options);
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || `GitHub API Error (${response.status})`);
+      }
+
+      return response.json();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('newKeyword').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          addKeyword();
+        }
+      });
+      
+      init();
+    });
+  </script>
+</body>
+</html>

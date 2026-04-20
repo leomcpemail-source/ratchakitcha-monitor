@@ -1,0 +1,23 @@
+{
+  "name": "ratchakitcha-monitor",
+  "version": "1.0.0",
+  "description": "ระบบแจ้งเตือนราชกิจจานุเบกษาอัตโนมัติ",
+  "main": "check.js",
+  "scripts": {
+    "start": "node check.js",
+    "test": "node check.js"
+  },
+  "keywords": [
+    "ratchakitcha",
+    "thailand",
+    "government",
+    "gazette",
+    "notification"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {}
+}

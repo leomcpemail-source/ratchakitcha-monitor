@@ -1,110 +1,210 @@
 # 📢 ระบบแจ้งเตือนราชกิจจานุเบกษาอัตโนมัติ
 
-ระบบตรวจสอบและแจ้งเตือนผ่านอีเมล์เมื่อมีประกาศราชกิจจานุเบกษาใหม่ที่เกี่ยวข้องกับ keywords ที่กำหนด
+ระบบตรวจสอบและแจ้งเตือนเมื่อมีประกาศใหม่ในราชกิจจานุเบกษาที่ตรงกับ keywords ที่กำหนด โดยทำงานอัตโนมัติผ่าน GitHub Actions และส่งอีเมล์แจ้งเตือน
 
-## 🌟 คุณสมบัติ
+## ✨ Features
 
-- ✅ ตรวจสอบอัตโนมัติทุกเช้า เวลา 07:00 น.
-- ✅ ส่งอีเมล์รายงานสรุปทุกวัน
-- ✅ เพิ่ม/ลด keywords ได้ง่าย
-- ✅ ฟรี 100% ไม่มีค่าใช้จ่าย
+- ✅ ตรวจสอบราชกิจจานุเบกษาอัตโนมัติตามเวลาที่กำหนด
+- ✅ รองรับหลาย keywords
+- ✅ รองรับ pagination (ดึงข้อมูลได้ทั้งหมดแม้มากกว่า 100 รายการ)
+- ✅ ส่งอีเมล์แจ้งเตือนพร้อมลิงก์ดาวน์โหลด PDF
+- ✅ มี Web UI สำหรับตั้งค่า (ไม่ต้องแก้ไขโค้ด)
+- ✅ แปลงเวลา ICT ↔ UTC อัตโนมัติ
+- ✅ บันทึก GitHub Token ใน localStorage (ไม่ต้องใส่ใหม่ทุกครั้ง)
 
-## 📋 การตั้งค่าครั้งแรก
+## 🚀 Quick Start
 
-### 1. ตั้งค่า Secrets ใน GitHub
+### 1. Fork Repository นี้
 
-ไปที่ `Settings` → `Secrets and variables` → `Actions` → `New repository secret`
+คลิกปุ่ม **Fork** ที่มุมขวาบน
 
-เพิ่ม secrets ทั้ง 3 ตัว:
+### 2. ตั้งค่าผ่าน Web UI
 
-| ชื่อ Secret | ค่าที่ใส่ | หมายเหตุ |
-|------------|---------|---------|
-| `RATCHAKITCHA_TOKEN` | Token จาก https://www2.soc.go.th | ดูวิธีขอ Token ในเอกสาร PDF |
-| `RESEND_API_KEY` | API Key จาก https://resend.com | เช่น `re_xxxxxxxxx` |
-| `EMAIL_TO` | อีเมล์ที่จะรับแจ้งเตือน | เช่น `your@email.com` |
+1. เปิดไฟล์ `config_rachakitcha.html` ใน browser
+2. ใส่ **GitHub Personal Access Token** (สร้างได้ที่ [github.com/settings/tokens](https://github.com/settings/tokens))
+   - ต้องการ permission: `repo`
+3. ตั้งค่า:
+   - **Keywords**: คำที่ต้องการค้นหา (เช่น "น้ำมัน", "คลัง")
+   - **เวลา**: เวลาที่ต้องการตรวจสอบ (ใส่เป็นเวลาไทย)
+   - **อีเมล์**: อีเมล์ที่จะรับการแจ้งเตือน
+   - **จำนวนวัน**: ย้อนหลังกี่วัน (แนะนำ 1-7)
+4. กด **บันทึกการตั้งค่า**
 
-### 2. แก้ไข Keywords ที่ต้องการติดตาม
+### 3. เพิ่ม API Keys
 
-แก้ไขไฟล์ `config.json`:
+ต้องการ 2 API keys:
 
+#### Ratchakitcha Token
+1. ไปที่ [www2.soc.go.th](https://www2.soc.go.th)
+2. เข้าสู่ระบบรับข้อมูลข่าวสาร
+3. คลิก "รับข้อมูล Token"
+4. Copy token ที่ได้
+
+#### Resend API Key
+1. สร้าง account ที่ [resend.com](https://resend.com)
+2. ไปที่ API Keys → Create API Key
+3. Copy key ที่ได้
+
+#### วิธีเพิ่ม Tokens
+**วิธีที่ 1: ใช้ Web UI** (แนะนำ)
+- เปิด `config_rachakitcha.html`
+- เพิ่ม tokens ในส่วน "การตั้งค่าอื่นๆ"
+
+**วิธีที่ 2: แก้ไข config.json**
 ```json
 {
-  "keywords": [
-    "ปิโตรเลียม",
-    "น้ำมัน",
-    "พลังงาน",
-    "ไฟฟ้า",
-    "เพิ่ม keyword ที่นี่"
-  ],
-  "daysToCheck": 1
+  "ratchakitchaToken": "YOUR_TOKEN_HERE",
+  "resendApiKey": "YOUR_RESEND_KEY_HERE",
+  "emailTo": "your-email@example.com"
 }
 ```
 
-### 3. ทดสอบรันด้วยตัวเอง
+### 4. ทดสอบ
 
-1. ไปที่ `Actions`
-2. เลือก workflow `Check Ratchakitcha Daily`
-3. คลิก `Run workflow`
-4. รอสักครู่ แล้วเช็คอีเมล์
+1. ไปที่ **Actions** tab ใน GitHub
+2. เลือก workflow "Check Ratchakitcha Daily"
+3. คลิก **Run workflow** → **Run workflow**
+4. รอสักครู่และตรวจสอบอีเมล์
 
-## 🕐 กำหนดการทำงาน
+## ⚙️ การตั้งค่า
 
-- **อัตโนมัติ:** ทุกวัน เวลา 07:00 น. (เวลาไทย)
-- **ด้วยตัวเอง:** คลิก "Run workflow" ใน Actions ได้ทุกเมื่อ
+### ตั้งเวลาทำงาน
 
-## 📧 ตัวอย่างอีเมล์ที่ได้รับ
+ตั้งค่าได้ 2 วิธี:
 
-อีเมล์จะมีข้อมูล:
-- 📊 สรุปจำนวนประกาศที่พบ
-- 🔍 แยกตาม keyword
-- 📖 รายละเอียด: ชื่อเรื่อง, เล่ม, ตอน, วันที่ประกาศ
-- 📥 ลิงก์ดาวน์โหลด PDF
+**วิธีที่ 1: ใช้ Web UI** (แนะนำ)
+1. เปิด `config_rachakitcha.html`
+2. ในส่วน "ตารางเวลาตรวจสอบ"
+3. ใส่เวลาเป็น**เวลาไทย** (เช่น 08:00)
+4. ระบบจะแปลงเป็น UTC อัตโนมัติ
 
-## ⚙️ ปรับแต่งเพิ่มเติม
-
-### เปลี่ยนเวลาที่ตรวจสอบ
-
+**วิธีที่ 2: แก้ไข Workflow File**
 แก้ไขไฟล์ `.github/workflows/check-ratchakitcha.yml`:
 
 ```yaml
 schedule:
-  - cron: '0 0 * * *'  # 07:00 น. (UTC 00:00 = ICT 07:00)
-  - cron: '0 12 * * *' # 19:00 น. (เพิ่มรอบเย็น)
+  - cron: '0 1 * * *'  # 08:00 ICT
+  - cron: '0 5 * * *'  # 12:00 ICT
 ```
 
-### เปลี่ยนจำนวนวันย้อนหลังที่เช็ค
-
-แก้ไขไฟล์ `config.json`:
-
-```json
-{
-  "daysToCheck": 3  // เช็คย้อนหลัง 3 วัน
-}
+**สูตรคำนวณ:**
+```
+UTC = (เวลาไทย - 7) mod 24
 ```
 
-## 🔧 แก้ไขปัญหา
+ตัวอย่าง:
+- 08:00 ICT → 01:00 UTC → `0 1 * * *`
+- 12:00 ICT → 05:00 UTC → `0 5 * * *`
+- 18:00 ICT → 11:00 UTC → `0 11 * * *`
+
+## 📁 โครงสร้างไฟล์
+
+```
+.
+├── config_rachakitcha.html   # Web UI สำหรับตั้งค่า
+├── check.js                   # Script หลัก (รองรับ pagination)
+├── config.json                # ไฟล์ config
+├── .github/
+│   └── workflows/
+│       └── check-ratchakitcha.yml  # GitHub Actions workflow
+├── .gitignore
+└── README.md
+```
+
+## 🔧 Advanced Usage
+
+### การเพิ่ม Keywords
+
+```javascript
+"keywords": [
+  "น้ำมัน",
+  "คลัง",
+  "ปิโตรเลียม",
+  "ก๊าซปิโตรเลียมเหลว",
+  "พลังงาน"
+]
+```
+
+### การตั้งเวลาหลายช่วง
+
+```yaml
+schedule:
+  - cron: '0 1 * * *'   # 08:00 ICT - เช้า
+  - cron: '0 5 * * *'   # 12:00 ICT - เที่ยง
+  - cron: '0 11 * * *'  # 18:00 ICT - เย็น
+```
+
+### การกรอง Pagination
+
+Script รองรับการดึงข้อมูลมากกว่า 100 รายการ:
+- ดึงทีละ 100 records
+- Loop จนกว่าจะได้ครบ
+- มี delay 500ms ระหว่างหน้า (ป้องกัน rate limit)
+
+## 🐛 Troubleshooting
 
 ### ไม่ได้รับอีเมล์
+1. ตรวจสอบว่า Resend API Key ถูกต้อง
+2. เช็คว่าอีเมล์ไม่ตกไป Spam
+3. ดู log ใน GitHub Actions
 
-1. เช็ค Actions → ดู log มี error หรือไม่
-2. ตรวจสอบ Secrets ว่าใส่ครบ 3 ตัว
-3. ตรวจสอบ `EMAIL_TO` พิมพ์ถูกต้อง
+### เวลาไม่ตรง
+1. เปิด `config_rachakitcha.html`
+2. ดูกล่อง "แสดงการแปลงเวลา ICT → UTC"
+3. ตรวจสอบว่า cron ถูกต้อง
 
-### GitHub Actions ไม่ทำงาน
+### Token หมดอายุ
+1. Ratchakitcha Token: ต้องขอใหม่ที่ soc.go.th
+2. GitHub Token: สร้างใหม่ที่ github.com/settings/tokens
 
-1. ตรวจสอบว่า Actions เปิดใช้งาน (Settings → Actions → Allow all actions)
-2. Repository ต้องมี activity (ลอง commit อะไรสักอย่าง)
+### ดึงข้อมูลไม่ครบ
+- Script รองรับ pagination แล้ว
+- ตรวจสอบ log ว่าดึงกี่หน้า
+- ถ้ายังไม่ครบ ให้เพิ่ม delay ระหว่างหน้า
 
-## 📚 เอกสารอ้างอิง
+## 📝 การอัพเดท
 
-- [API ราชกิจจานุเบกษา](https://api.soc.go.th)
-- [Resend Documentation](https://resend.com/docs)
-- [GitHub Actions Cron](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule)
+### อัพเดท Keywords
+1. เปิด `config_rachakitcha.html`
+2. เพิ่ม/ลบ keywords
+3. กดบันทึก
 
-## 📝 License
+### อัพเดทเวลา
+1. เปิด `config_rachakitcha.html`
+2. แก้ไขเวลาในส่วน "ตารางเวลาตรวจสอบ"
+3. กดบันทึก (จะอัพเดท workflow file อัตโนมัติ)
 
-MIT License - ใช้งานได้ฟรี
+### เปลี่ยน GitHub Token
+1. เปิด `config_rachakitcha.html`
+2. กดปุ่ม "🗑️ ลบ Token"
+3. Refresh หน้า
+4. ใส่ Token ใหม่
+
+## 🔒 ความปลอดภัย
+
+- ❌ **อย่า commit** tokens ลง git
+- ✅ ใช้ `config_rachakitcha.html` สำหรับตั้งค่า
+- ✅ GitHub Token เก็บใน localStorage ของ browser
+- ✅ Tokens จริงเก็บใน `config.json` (ไม่ควร public)
+
+## 📚 เอกสารเพิ่มเติม
+
+- [คู่มือการใช้งาน API ราชกิจจานุเบกษา](https://www.ratchakitcha.soc.go.th/)
+- [วิธีสร้าง GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
+- [Resend Email API](https://resend.com/docs)
+
+## 🤝 Contributing
+
+ยินดีรับ Pull Requests!
+
+## 📄 License
+
+MIT License
+
+## 👨‍💻 Author
+
+สร้างด้วย ❤️ สำหรับการติดตามข่าวสารราชกิจจานุเบกษา
 
 ---
 
-Made with ❤️ for monitoring Thai Royal Gazette
+**หมายเหตุ:** ระบบนี้ใช้สำหรับติดตามข่าวสารเท่านั้น ไม่เกี่ยวข้องกับส่วนราชการ

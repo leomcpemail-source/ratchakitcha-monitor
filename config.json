@@ -5,9 +5,9 @@
     "ปิโตรเลียม",
     "ก๊าซปิโตรเลียมเหลว"
   ],
-  "daysToCheck": 365,
-  "emailTo": "solorecord81993@gmail.com",
-  "ratchakitchaToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbG9yZWNvcmQ4MTk5M0BnbWFpbC5jb20iLCJndWlkIjoiNDJkZWRkODRmOWNiZTkzNjc3NTU5NGQ3ZmM3ZmYwMGIiLCJleHAiOjE3NzY0MTA0MzgsImlzcyI6Imh0dHA6Ly8xMC45OC4xMy41MjoxMTUwIiwiYXVkIjoiaHR0cDovLzEwLjk4LjEzLjUyOjExNTAifQ.s0HbFvb-V2tUWYK8pHP-WFmPp7gxNIJeMC2il5Ua8s4",
-  "resendApiKey": "re_ZU3MRJas_J9exwcyvWyXeVbbVZUYuw5Nd",
-  "description": "à¹à¸à¹à¹à¸ tokens à¹à¸à¹à¸à¸µà¹à¸à¸µà¹ / à¸à¸£à¸­à¸ email à¸à¹à¸²à¸à¸«à¸à¹à¸²à¹à¸§à¹à¸ Config Panel"
+  "daysToCheck": 1,
+  "emailTo": "your-email@example.com",
+  "ratchakitchaToken": "YOUR_RATCHAKITCHA_TOKEN_HERE",
+  "resendApiKey": "YOUR_RESEND_API_KEY_HERE",
+  "description": "กรุณาแก้ไข tokens ที่นี่ หรือใช้ Config Panel (config_rachakitcha.html)"
 }

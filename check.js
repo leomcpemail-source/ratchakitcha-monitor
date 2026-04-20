@@ -3,7 +3,6 @@ const fs = require('fs');
 // อ่านค่า config
 const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
-// ใช้ค่าจาก config.json แทน environment variables
 const RATCHAKITCHA_TOKEN = config.ratchakitchaToken || process.env.RATCHAKITCHA_TOKEN;
 const RESEND_API_KEY = config.resendApiKey || process.env.RESEND_API_KEY;
 const EMAIL_TO = config.emailTo || process.env.EMAIL_TO;
@@ -15,7 +14,7 @@ if (!RATCHAKITCHA_TOKEN || !RESEND_API_KEY || !EMAIL_TO) {
   process.exit(1);
 }
 
-// ฟังก์ชันดึงข้อมูลจาก API ราชกิจจานุเบกษา
+// ฟังก์ชันดึงข้อมูลจาก API ราชกิจจานุเบกษา (รองรับ pagination)
 async function fetchRatchakitcha(keyword, daysBack = 1) {
   const today = new Date();
   const startDate = new Date(today);
@@ -24,29 +23,60 @@ async function fetchRatchakitcha(keyword, daysBack = 1) {
   const dateBegin = formatDate(startDate);
   const dateEnd = formatDate(today);
   
-  const url = `https://api.soc.go.th/webservice/api/rkjs/1/100?title=${encodeURIComponent(keyword)}&dateBegin=${dateBegin}&dateEnd=${dateEnd}`;
+  const allResults = [];
+  let page = 1;
+  const limit = 100;
   
-  console.log(`🔍 Searching for: ${keyword}`);
+  console.log(`🔍 Searching for: "${keyword}"`);
   console.log(`📅 Date range: ${dateBegin} to ${dateEnd}`);
-  console.log(`🌐 URL: ${url}`);
   
-  try {
-    const response = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${RATCHAKITCHA_TOKEN}`
+  while (true) {
+    const url = `https://api.soc.go.th/webservice/api/rkjs/${page}/${limit}?title=${encodeURIComponent(keyword)}&dateBegin=${dateBegin}&dateEnd=${dateEnd}`;
+    
+    console.log(`📄 Fetching page ${page}...`);
+    
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${RATCHAKITCHA_TOKEN}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const data = await response.json();
+      
+      if (!data.rkjs || data.rkjs.length === 0) {
+        console.log(`   ✓ No more data on page ${page}`);
+        break;
+      }
+      
+      allResults.push(...data.rkjs);
+      console.log(`   ✓ Found ${data.rkjs.length} items on page ${page}`);
+      
+      // ถ้าได้ครบหรือน้อยกว่า limit = หน้าสุดท้าย
+      if (data.rkjs.length < limit || allResults.length >= data.totalItem) {
+        console.log(`   ✓ Reached end (total: ${allResults.length})`);
+        break;
+      }
+      
+      page++;
+      
+      // รอก่อนดึงหน้าถัดไป (ป้องกัน rate limit)
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+    } catch (error) {
+      console.error(`❌ Error fetching page ${page}:`, error.message);
+      break;
     }
-    
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error(`❌ Error fetching data for "${keyword}":`, error.message);
-    return null;
   }
+  
+  return {
+    totalItem: allResults.length,
+    rkjs: allResults
+  };
 }
 
 // ฟังก์ชันแปลงวันที่เป็นรูปแบบ MM-DD-YYYY
@@ -123,7 +153,7 @@ function createEmailHTML(results) {
   html += `
     <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #7f8c8d; font-size: 0.9em;">
       <p>🤖 ระบบแจ้งเตือนอัตโนมัติจาก GitHub Actions</p>
-      <p>ตั้งค่า Keywords ได้ที่: <a href="https://github.com/leomcpemail-source/ratchakitcha-monitor">Repository</a></p>
+      <p>⚙️ ตั้งค่า Keywords ได้ที่: <a href="https://github.com/leomcpemail-source/ratchakitcha-monitor">Repository</a></p>
     </div>
   </div>
 </body>
@@ -138,7 +168,6 @@ async function sendEmail(results) {
   const hasNewItems = results.some(r => r.items.length > 0);
   const totalItems = results.reduce((sum, r) => sum + r.items.length, 0);
   
-  // ถ้าไม่มีรายการใหม่เลย ให้ส่งอีเมล์แจ้งว่าไม่มีอัพเดต
   const subject = hasNewItems 
     ? `📢 พบประกาศราชกิจจาฯ ใหม่ ${totalItems} รายการ - ${formatDateThai(new Date().toISOString())}`
     : `✅ ไม่มีประกาศราชกิจจาฯ ใหม่ - ${formatDateThai(new Date().toISOString())}`;
@@ -179,6 +208,7 @@ async function main() {
   console.log('🚀 Starting Ratchakitcha Monitor...');
   console.log('📧 Email will be sent to:', EMAIL_TO);
   console.log('🔑 Keywords:', config.keywords);
+  console.log('📅 Days to check:', config.daysToCheck);
   console.log('---');
 
   const results = [];
@@ -201,7 +231,7 @@ async function main() {
       });
     }
     
-    // รอสักครู่ก่อนค้นหา keyword ถัดไป (ป้องกัน rate limit)
+    // รอสักครู่ก่อนค้นหา keyword ถัดไป
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
