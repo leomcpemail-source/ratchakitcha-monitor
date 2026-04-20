@@ -2,15 +2,18 @@
   "keywords": [
     "น้ำมัน",
     "คลัง",
-    "ปิโตรเลียม"
+    "ปิโตรเลียม",
+    "ก๊าซปิโตรเลียมเหลว"
   ],
-  "daysToCheck": 1,
+  "daysToCheck": 7,
   "emailTo": [
-    "email1@example.com",
-    "email2@example.com",
-    "email3@example.com"
+    "solorecord81993@gmail.com",
+    "leomcpemail@gmail.com"
   ],
-  "selectedDays": [1, 2, 3, 4, 5],
+  "selectedDays": [
+    2,
+    4
+  ],
   "ratchakitchaToken": "YOUR_RATCHAKITCHA_TOKEN_HERE",
   "resendApiKey": "YOUR_RESEND_API_KEY_HERE"
 }
