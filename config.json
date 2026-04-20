@@ -6,7 +6,7 @@
     "ก๊าซปิโตรเลียมเหลว"
   ],
   "daysToCheck": 1,
-  "emailTo": "your-email@example.com",
+  "emailTo": "solorecord81993@gmail.com",
   "ratchakitchaToken": "YOUR_RATCHAKITCHA_TOKEN_HERE",
   "resendApiKey": "YOUR_RESEND_API_KEY_HERE",
   "description": "กรุณาแก้ไข tokens ที่นี่ หรือใช้ Config Panel (config_rachakitcha.html)"
