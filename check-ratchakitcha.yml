@@ -1,0 +1,25 @@
+name: Check Ratchakitcha
+
+on:
+  schedule:
+    # วันจันทร์-ศุกร์ เวลา 08:00 น. เวลาไทย (01:00 UTC)
+    # จะถูกอัพเดทอัตโนมัติเมื่อบันทึกจาก config_rachakitcha.html
+    - cron: '0 1 * * 1,2,3,4,5'  # 08:00 ICT
+  
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Run check script
+        run: node check.js
