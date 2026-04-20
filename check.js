@@ -14,6 +14,11 @@ if (!RATCHAKITCHA_TOKEN || !RESEND_API_KEY || !EMAIL_TO) {
   process.exit(1);
 }
 
+// แปลง emailTo เป็น array ถ้ายังไม่ใช่
+const EMAIL_LIST = Array.isArray(EMAIL_TO) ? EMAIL_TO : [EMAIL_TO];
+
+console.log('📧 Email recipients:', EMAIL_LIST.length, 'addresses');
+
 // ฟังก์ชันดึงข้อมูลจาก API ราชกิจจานุเบกษา (รองรับ pagination)
 async function fetchRatchakitcha(keyword, daysBack = 1) {
   const today = new Date();
@@ -56,15 +61,12 @@ async function fetchRatchakitcha(keyword, daysBack = 1) {
       allResults.push(...data.rkjs);
       console.log(`   ✓ Found ${data.rkjs.length} items on page ${page}`);
       
-      // ถ้าได้ครบหรือน้อยกว่า limit = หน้าสุดท้าย
       if (data.rkjs.length < limit || allResults.length >= data.totalItem) {
         console.log(`   ✓ Reached end (total: ${allResults.length})`);
         break;
       }
       
       page++;
-      
-      // รอก่อนดึงหน้าถัดไป (ป้องกัน rate limit)
       await new Promise(resolve => setTimeout(resolve, 500));
       
     } catch (error) {
@@ -79,7 +81,6 @@ async function fetchRatchakitcha(keyword, daysBack = 1) {
   };
 }
 
-// ฟังก์ชันแปลงวันที่เป็นรูปแบบ MM-DD-YYYY
 function formatDate(date) {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
@@ -87,14 +88,12 @@ function formatDate(date) {
   return `${month}-${day}-${year}`;
 }
 
-// ฟังก์ชันแปลงวันที่เป็นรูปแบบไทย
 function formatDateThai(dateStr) {
   const date = new Date(dateStr);
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   return date.toLocaleDateString('th-TH', options);
 }
 
-// ฟังก์ชันสร้าง HTML สำหรับอีเมล์
 function createEmailHTML(results) {
   let html = `
 <!DOCTYPE html>
@@ -111,7 +110,6 @@ function createEmailHTML(results) {
     .title { font-weight: bold; color: #2c3e50; margin-bottom: 5px; }
     .meta { color: #7f8c8d; font-size: 0.9em; }
     .link { display: inline-block; margin-top: 10px; padding: 8px 15px; background: #3498db; color: white; text-decoration: none; border-radius: 4px; }
-    .link:hover { background: #2980b9; }
     .summary { background: #e8f4f8; padding: 15px; margin: 20px 0; border-radius: 5px; }
     .no-results { color: #95a5a6; font-style: italic; }
   </style>
@@ -153,7 +151,6 @@ function createEmailHTML(results) {
   html += `
     <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #7f8c8d; font-size: 0.9em;">
       <p>🤖 ระบบแจ้งเตือนอัตโนมัติจาก GitHub Actions</p>
-      <p>⚙️ ตั้งค่า Keywords ได้ที่: <a href="https://github.com/leomcpemail-source/ratchakitcha-monitor">Repository</a></p>
     </div>
   </div>
 </body>
@@ -163,7 +160,7 @@ function createEmailHTML(results) {
   return html;
 }
 
-// ฟังก์ชันส่งอีเมล์ผ่าน Resend
+// ฟังก์ชันส่งอีเมล์ผ่าน Resend (รองรับหลายคนแบบ BCC)
 async function sendEmail(results) {
   const hasNewItems = results.some(r => r.items.length > 0);
   const totalItems = results.reduce((sum, r) => sum + r.items.length, 0);
@@ -175,18 +172,32 @@ async function sendEmail(results) {
   const htmlContent = createEmailHTML(results);
 
   try {
+    // ส่งอีเมล์แบบ BCC (ผู้รับหลายคน)
+    // คนแรกเป็น "to", คนที่เหลือเป็น "bcc"
+    const emailPayload = {
+      from: 'onboarding@resend.dev',
+      to: EMAIL_LIST[0],
+      subject: subject,
+      html: htmlContent
+    };
+
+    // ถ้ามีมากกว่า 1 คน ให้เพิ่ม bcc
+    if (EMAIL_LIST.length > 1) {
+      emailPayload.bcc = EMAIL_LIST.slice(1);
+    }
+
+    console.log('📧 Sending to:', EMAIL_LIST[0]);
+    if (EMAIL_LIST.length > 1) {
+      console.log('📧 BCC to:', EMAIL_LIST.slice(1).join(', '));
+    }
+
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${RESEND_API_KEY}`
       },
-      body: JSON.stringify({
-        from: 'onboarding@resend.dev',
-        to: EMAIL_TO,
-        subject: subject,
-        html: htmlContent
-      })
+      body: JSON.stringify(emailPayload)
     });
 
     if (!response.ok) {
@@ -196,6 +207,7 @@ async function sendEmail(results) {
 
     const data = await response.json();
     console.log('✅ Email sent successfully!', data);
+    console.log(`📧 Total recipients: ${EMAIL_LIST.length}`);
     return true;
   } catch (error) {
     console.error('❌ Error sending email:', error.message);
@@ -203,17 +215,15 @@ async function sendEmail(results) {
   }
 }
 
-// ฟังก์ชันหลัก
 async function main() {
   console.log('🚀 Starting Ratchakitcha Monitor...');
-  console.log('📧 Email will be sent to:', EMAIL_TO);
   console.log('🔑 Keywords:', config.keywords);
   console.log('📅 Days to check:', config.daysToCheck);
+  console.log('📅 Selected days:', config.selectedDays || 'all days');
   console.log('---');
 
   const results = [];
 
-  // ค้นหาแต่ละ keyword
   for (const keyword of config.keywords) {
     const data = await fetchRatchakitcha(keyword, config.daysToCheck || 1);
     
@@ -231,7 +241,6 @@ async function main() {
       });
     }
     
-    // รอสักครู่ก่อนค้นหา keyword ถัดไป
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
@@ -241,7 +250,6 @@ async function main() {
   console.log(`Total items found: ${results.reduce((sum, r) => sum + r.items.length, 0)}`);
   console.log('---');
 
-  // ส่งอีเมล์
   console.log('📧 Sending email...');
   const emailSent = await sendEmail(results);
   
@@ -253,7 +261,6 @@ async function main() {
   }
 }
 
-// รัน
 main().catch(error => {
   console.error('❌ Fatal error:', error);
   process.exit(1);

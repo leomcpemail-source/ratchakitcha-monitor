@@ -2,12 +2,15 @@
   "keywords": [
     "น้ำมัน",
     "คลัง",
-    "ปิโตรเลียม",
-    "ก๊าซปิโตรเลียมเหลว"
+    "ปิโตรเลียม"
   ],
   "daysToCheck": 1,
-  "emailTo": "solorecord81993@gmail.com",
+  "emailTo": [
+    "email1@example.com",
+    "email2@example.com",
+    "email3@example.com"
+  ],
+  "selectedDays": [1, 2, 3, 4, 5],
   "ratchakitchaToken": "YOUR_RATCHAKITCHA_TOKEN_HERE",
-  "resendApiKey": "YOUR_RESEND_API_KEY_HERE",
-  "description": "กรุณาแก้ไข tokens ที่นี่ หรือใช้ Config Panel (config_rachakitcha.html)"
+  "resendApiKey": "YOUR_RESEND_API_KEY_HERE"
 }
