@@ -2,9 +2,7 @@ name: Check Ratchakitcha
 
 on:
   schedule:
-    # วันจันทร์-ศุกร์ เวลา 08:00 น. เวลาไทย (01:00 UTC)
-    # จะถูกอัพเดทอัตโนมัติเมื่อบันทึกจาก config_rachakitcha.html
-    - cron: '0 1 * * 1,2,3,4,5'  # 08:00 ICT
+    - cron: '0 2 * * 2,4'  # 09:00 ICT
   
   workflow_dispatch:
 
